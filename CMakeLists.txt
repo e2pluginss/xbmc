@@ -4,7 +4,7 @@ if(WIN32)
   cmake_minimum_required(VERSION 3.20)
 endif()
 project(kodi LANGUAGES CXX C ASM)
-
+#find_package(PkgConfig REQUIRED)
 if(POLICY CMP0069)
   set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
   cmake_policy(SET CMP0069 NEW)
@@ -70,7 +70,7 @@ option(ENABLE_INTERNAL_CROSSGUID "Enable internal crossguid?" ON)
 option(ENABLE_INTERNAL_RapidJSON "Enable internal rapidjson?" ON)
 
 # use ffmpeg from depends or system
-option(ENABLE_INTERNAL_FFMPEG "Enable internal ffmpeg?" OFF)
+#option(ENABLE_INTERNAL_FFMPEG "Enable internal ffmpeg?" OFF)
 
 # These are built for all platforms not using system libs or disabled by user
 dependent_option(ENABLE_INTERNAL_FLATBUFFERS "Enable internal flatbuffers?")
@@ -87,6 +87,44 @@ if(UNIX)
   option(ENABLE_INTERNAL_DAV1D "Enable internal dav1d?" OFF)
   option(ENABLE_INTERNAL_GTEST "Enable internal gtest?" OFF)
   option(ENABLE_INTERNAL_UDFREAD "Enable internal udfread?" OFF)
+endif()
+#if (ENABLE_INTERNAL_FFMPEG)
+#  # Build FFmpeg from source
+#  add_subdirectory(ffmpeg)
+#else()
+  # Use system-installed FFmpeg library
+#  find_package(FFmpeg REQUIRED)
+#endif()
+
+# Check for FFmpeg library and include directory
+#find_package(FFmpeg REQUIRED)
+#if (FFMPEG_FOUND)
+#  message(STATUS "FFmpeg library found at ${FFMPEG_LIBRARIES}")
+#  include_directories(${FFMPEG_INCLUDE_DIRS})
+#else()
+#  message(FATAL_ERROR "FFmpeg library not found")
+#endif()
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET libavcodec libavformat libswscale libavutil)
+if (FFMPEG_FOUND)
+  message(STATUS "FFmpeg library found at ${FFMPEG_LIBRARIES}")
+  include_directories(${FFMPEG_INCLUDE_DIRS})
+  set(CMAKE_CXX_CREATE_SHARED_LIBRARY "${FFMPEG_LIBRARIES}")
+else()
+  message(FATAL_ERROR "FFmpeg library not found")
+endif()
+#set_target_properties(${APP_NAME_LC} PkgConfig::FFMPEG)
+#set_target_properties(${APP_NAME_LC} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
+#add_executable(${APP_NAME_LC} ${SOURCE_FILES})
+#target_link_libraries(${APP_NAME_LC} PkgConfig::FFMPEG)
+
+# link wrapper
+if(FFMPEG_LINK_EXECUTABLE)
+  set(CMAKE_CXX_LINK_EXECUTABLE "${FFMPEG_LINK_EXECUTABLE}")
+endif()
+
+if(FFMPEG_CREATE_SHARED_LIBRARY)
+  set(CMAKE_CXX_CREATE_SHARED_LIBRARY "${FFMPEG_CREATE_SHARED_LIBRARY}")
 endif()
 # prefer kissfft from xbmc/contrib but let use system one on unices
 cmake_dependent_option(ENABLE_INTERNAL_KISSFFT "Enable internal kissfft?" ON "UNIX" ON)
@@ -168,7 +206,6 @@ set(required_deps ASS
                   Cdio
                   CrossGUID
                   Curl
-                  FFMPEG
                   FlatBuffers
                   Fmt
                   FreeType
@@ -378,6 +415,8 @@ if(WIN32)
   set_language_cxx(lib${APP_NAME_LC})
 endif()
 
+#add_executable(${APP_NAME_LC} ${CORE_MAIN_SOURCE} "${RESOURCES}" ${OTHER_FILES})
+
 # main binary
 if(NOT CORE_SYSTEM_NAME STREQUAL android)
   if(CORE_SYSTEM_NAME STREQUAL windowsstore)
@@ -477,12 +516,12 @@ if(DOXYGEN_FOUND)
 endif()
 
 # link wrapper
-if(FFMPEG_LINK_EXECUTABLE)
-  set(CMAKE_CXX_LINK_EXECUTABLE "${FFMPEG_LINK_EXECUTABLE}")
-endif()
-if(FFMPEG_CREATE_SHARED_LIBRARY)
-  set(CMAKE_CXX_CREATE_SHARED_LIBRARY "${FFMPEG_CREATE_SHARED_LIBRARY}")
-endif()
+#if(FFMPEG_LINK_EXECUTABLE)
+#  set(CMAKE_CXX_LINK_EXECUTABLE "${FFMPEG_LINK_EXECUTABLE}")
+#endif()
+#if(FFMPEG_CREATE_SHARED_LIBRARY)
+#  set(CMAKE_CXX_CREATE_SHARED_LIBRARY "${FFMPEG_CREATE_SHARED_LIBRARY}")
+#endif()
 
 # Platform specific additional extra targets
 if(EXISTS ${CMAKE_SOURCE_DIR}/cmake/scripts/${CORE_SYSTEM_NAME}/ExtraTargets.cmake)
