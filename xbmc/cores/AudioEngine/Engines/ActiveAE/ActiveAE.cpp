@@ -3094,7 +3094,8 @@ IAE::SoundPtr CActiveAE::MakeSound(const std::string& file)
     if (avformat_find_stream_info(fmt_ctx, nullptr) >= 0)
     {
       AVCodecID codecId = fmt_ctx->streams[0]->codecpar->codec_id;
-      dec = avcodec_find_decoder(codecId);
+      const AVCodec* dec = avcodec_find_decoder(codecId);
+//      dec = avcodec_find_decoder(codecId);
       config.sample_rate = fmt_ctx->streams[0]->codecpar->sample_rate;
       config.channels = fmt_ctx->streams[0]->codecpar->channels;
       config.channel_layout = fmt_ctx->streams[0]->codecpar->channel_layout;
