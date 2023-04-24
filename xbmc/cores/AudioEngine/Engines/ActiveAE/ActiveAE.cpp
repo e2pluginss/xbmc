@@ -3074,7 +3074,7 @@ IAE::SoundPtr CActiveAE::MakeSound(const std::string& file)
   }
 
   fmt_ctx->pb = io_ctx;
-
+  const AVInputFormat* io_fmt;
   av_probe_input_buffer(io_ctx, &io_fmt, file.c_str(), nullptr, 0, 0);
   if (!io_fmt)
   {
