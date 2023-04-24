@@ -163,7 +163,6 @@ set(required_deps ASS
                   Cdio
                   CrossGUID
                   Curl
-                  FFMPEG
                   FlatBuffers
                   Fmt
                   FreeType
@@ -469,6 +468,15 @@ if(DOXYGEN_FOUND)
                     COMMAND ${CMAKE_COMMAND} -E echo "Documentation built to: file://${CMAKE_SOURCE_DIR}/docs/html/index.html"
                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/docs/doxygen
                     COMMENT "Generating Doxygen documentation" VERBATIM)
+endif()
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET libavcodec libavformat libswscale libavutil)
+if (FFMPEG_FOUND)
+  message(STATUS "FFmpeg library found at ${FFMPEG_LIBRARIES}")
+  include_directories(${FFMPEG_INCLUDE_DIRS})
+  set(CMAKE_CXX_CREATE_SHARED_LIBRARY "${FFMPEG_LIBRARIES}")
+else()
+  message(FATAL_ERROR "FFmpeg library not found")
 endif()
 
 # link wrapper
