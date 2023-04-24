@@ -59,7 +59,8 @@ bool CMusicInfoTagLoaderFFmpeg::Load(const std::string& strFileName, CMusicInfoT
     ioctx->seekable = 0;
 
   AVInputFormat* iformat=NULL;
-  av_probe_input_buffer(ioctx, &iformat, strFileName.c_str(), NULL, 0, 0);
+  av_probe_input_buffer(ioctx, const_cast<const AVInputFormat**>(&iformat), strFileName.c_str(), NULL, 0, 0);
+//  av_probe_input_buffer(ioctx, &iformat, strFileName.c_str(), NULL, 0, 0);
 
   if (avformat_open_input(&fctx, strFileName.c_str(), iformat, NULL) < 0)
   {
