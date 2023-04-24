@@ -17,7 +17,7 @@
 #include "settings/SettingsComponent.h"
 #include <string.h>
 #include <cassert>
-
+#include <libavcodec/avcodec.h>
 CAEEncoderFFmpeg::CAEEncoderFFmpeg() : m_CodecCtx(NULL), m_SwrCtx(NULL)
 {
 }
