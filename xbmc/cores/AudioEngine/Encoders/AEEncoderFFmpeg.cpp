@@ -89,7 +89,8 @@ bool CAEEncoderFFmpeg::Initialize(AEAudioFormat &format, bool allow_planar_input
     m_CodecName = "AC3";
     m_CodecID = AV_CODEC_ID_AC3;
     m_BitRate = AC3_ENCODE_BITRATE;
-    codec = avcodec_find_encoder(m_CodecID);
+    //codec = avcodec_find_encoder(m_CodecID);
+    codec = const_cast<AVCodec*>(avcodec_find_encoder(m_CodecID));
   }
 
   /* check we got the codec */
